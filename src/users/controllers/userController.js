@@ -16,7 +16,7 @@ exports.create = async (req, res) => {
   const { nome, email, senha } = req.body;
   try {
     const [result] = await pool.query(
-      'INSERT INTO Usuarios (nome, email, senha) VALUES (?, ?, ?)',
+      'INSERT INTO Usuarios (nome, email, senha) VALUES (?, ?, ?)',  //exemplo criado para tabela com id nome email senha data
       [nome, email, senha]
     );
     res.send(`✅ Usuário criado com ID: ${result.insertId}`);
