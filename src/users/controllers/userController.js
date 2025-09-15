@@ -1,62 +1,55 @@
-const { poolPromise, sql } = require('../../db');
+const pool = require('../../db');
 
-// GET todos usuários
+// listar todos os usuários
 exports.getAll = async (req, res) => {
   try {
-    const pool = await poolPromise;
-    const result = await pool.request().query('SELECT * FROM Usuario');
-    res.json(result.recordset);
+    const [rows] = await pool.query('SELECT * FROM Usuarios');
+    res.json(rows);
   } catch (err) {
+    console.error(err);
     res.status(500).send(err.message);
   }
 };
 
-// POST novo usuário
+// criar um usuário
 exports.create = async (req, res) => {
-  const { nome, email, senha, tipo_acesso } = req.body;
+  const { nome, email, senha } = req.body;
   try {
-    const pool = await poolPromise;
-    await pool.request()
-      .input('nome', sql.VarChar, nome)
-      .input('email', sql.VarChar, email)
-      .input('senha', sql.VarChar, senha)
-      .input('tipo_acesso', sql.VarChar, tipo_acesso)
-      .query('INSERT INTO Usuarios (nome, email, senha, tipo_acesso) VALUES (@nome, @email, @senha, @tipo_acesso)');
-    res.send('Usuário criado com sucesso!');
+    const [result] = await pool.query(
+      'INSERT INTO Usuarios (nome, email, senha) VALUES (?, ?, ?)',
+      [nome, email, senha]
+    );
+    res.send(`✅ Usuário criado com ID: ${result.insertId}`);
   } catch (err) {
+    console.error(err);
     res.status(500).send(err.message);
   }
 };
 
-// PUT para atualizar usuário
+// atualizar
 exports.update = async (req, res) => {
   const { id } = req.params;
-  const { nome, email, senha, tipo_acesso } = req.body;
+  const { nome, email, senha } = req.body;
   try {
-    const pool = await poolPromise;
-    await pool.request()
-      .input('id', sql.Int, id)
-      .input('nome', sql.VarChar, nome)
-      .input('email', sql.VarChar, email)
-      .input('senha', sql.VarChar, senha)
-      .input('tipo_acesso', sql.VarChar, tipo_acesso)
-      .query('UPDATE Usuarios SET nome=@nome, email=@email, senha=@senha, tipo_acesso=@tipo_acesso WHERE id_usuario=@id');
-    res.send('Usuário atualizado com sucesso!');
+    await pool.query(
+      'UPDATE Usuarios SET nome=?, email=?, senha=? WHERE id=?',
+      [nome, email, senha, id]
+    );
+    res.send(`✅ Usuário ${id} atualizado com sucesso!`);
   } catch (err) {
+    console.error(err);
     res.status(500).send(err.message);
   }
 };
 
-// DELETE para remover usuário
+// deletar
 exports.remove = async (req, res) => {
   const { id } = req.params;
   try {
-    const pool = await poolPromise;
-    await pool.request()
-      .input('id', sql.Int, id)
-      .query('DELETE FROM Usuarios WHERE id_usuario=@id');
-    res.send('Usuário deletado com sucesso!');
+    await pool.query('DELETE FROM Usuarios WHERE id=?', [id]);
+    res.send(`✅ Usuário ${id} removido com sucesso!`);
   } catch (err) {
+    console.error(err);
     res.status(500).send(err.message);
   }
 };

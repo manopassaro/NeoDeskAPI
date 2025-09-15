@@ -5,7 +5,7 @@ const usuariosRouter = require('./users/routes/userRoutes');
 
 const app = express();
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
 app.use('/usuarios', usuariosRouter);
 
